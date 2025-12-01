@@ -1,0 +1,34 @@
+{
+  "shaders": [
+    {
+      "file": "mouse.wgsl",
+      "name": "Mouse Interaction",
+      "description": "Interactive shader with mouse tracking and animated gradients"
+    },
+    {
+      "file": "simple_noise.wgsl",
+      "name": "Simple 2D Noise",
+      "description": "Basic 2D noise using a hash function with animated color variations"
+    },
+    {
+      "file": "perlin_noise.wgsl",
+      "name": "Perlin 2D Noise",
+      "description": "Classic Perlin noise with smooth gradients and color mapping"
+    },
+    {
+      "file": "fbm_perlin_noise.wgsl",
+      "name": "FBM Perlin Noise",
+      "description": "Fractal Brownian Motion combining multiple octaves of Perlin noise for complex patterns"
+    },
+    {
+      "file": "raymarch_basic.wgsl",
+      "name": "Ray Marching - Basic",
+      "description": "Introduction to ray marching with simple primitives, CSG operations, and basic lighting"
+    },
+    {
+      "file": "raymarch_glass.wgsl",
+      "name": "Ray Marching - Glass & Metal",
+      "description": "Advanced ray marching with reflection, refraction, Fresnel effects, and multiple material types"
+    }
+  ]
+}
