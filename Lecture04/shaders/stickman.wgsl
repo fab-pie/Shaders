@@ -1,5 +1,78 @@
-// Stickman avec articulations contrôlables
-// Chaque partie du corps est une primitive différente
+// Stickman Ray Marching with Poses
+@fragment
+fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
+    let uv = (fragCoord.xy - uniforms.resolution * 0.5) / min(uniforms.resolution.x, uniforms.resolution.y);
+    
+    // Orbital Control
+    let pitch = clamp((uniforms.mouse.y / uniforms.resolution.y), 0.05, 1.5);
+    let yaw = uniforms.time * 0.3;
+    
+    // Camera Coords
+    let cam_dist = 8.0;
+    let cam_target = vec3<f32>(0.0, 0.0, 0.0);
+    let cam_pos = vec3<f32>(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * cam_dist;
+    
+    // Camera Matrix
+    let cam_forward = normalize(cam_target - cam_pos);
+    let cam_right = normalize(cross(cam_forward, vec3<f32>(0.0, 1.0, 0.0)));
+    let cam_up = cross(cam_right, cam_forward);
+    
+    // Ray Direction
+    let focal_length = 1.5;
+    let rd = normalize(cam_right * uv.x - cam_up * uv.y + cam_forward * focal_length);
+    
+    // Ray march
+    let result = ray_march(cam_pos, rd);
+    
+    if result.x < MAX_DIST {
+        // Hit something - calculate lighting
+        let hit_pos = cam_pos + rd * result.x;
+        let normal = get_normal(hit_pos);
+        
+        // Diffuse Lighting
+        let light_pos = vec3<f32>(2.0, 5.0, -1.0);
+        let light_dir = normalize(light_pos - hit_pos);
+        let diffuse = max(dot(normal, light_dir), 0.0);
+        
+        // Shadow Casting
+        let shadow_origin = hit_pos + normal * 0.01;
+        let shadow_result = ray_march(shadow_origin, light_dir);
+        let shadow = select(0.3, 1.0, shadow_result.x > length(light_pos - shadow_origin));
+        
+        // Phong Shading
+        let ambient = 0.2;
+        var albedo = get_material_color(result.y, hit_pos);
+        let phong = albedo * (ambient + diffuse * shadow * 0.8);
+        
+        // Exponential Fog
+        let fog = exp(-result.x * 0.02);
+        let color = mix(MAT_SKY_COLOR, phong, fog);
+        
+        return vec4<f32>(gamma_correct(color), 1.0);
+    }
+    
+    // Sky gradient
+    let sky = mix(MAT_SKY_COLOR, MAT_SKY_COLOR * 0.9, uv.y * 0.5 + 0.5);
+    return vec4<f32>(gamma_correct(sky), 1.0);
+}
+
+// Gamma Correction
+fn gamma_correct(color: vec3<f32>) -> vec3<f32> {
+    return pow(color, vec3<f32>(1.0 / 2.2));
+}
+
+// Constants
+const MAX_DIST: f32 = 100.0;
+const SURF_DIST: f32 = 0.001;
+const MAX_STEPS: i32 = 100;
+const PI: f32 = 3.14159265359;
+
+// Material Types
+const MAT_GROUND: f32 = 0.0;
+const MAT_STICKMAN: f32 = 1.0;
+
+// Material Colors
+const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.7, 0.8, 0.9);
 
 // Struct pour les primitives
 struct Primitive {
@@ -41,12 +114,6 @@ struct Stickman {
 // Bind le Stickman à @binding(1)
 @group(0) @binding(1)
 var<uniform> stickman: Stickman;
-
-// Constantes
-const MAX_DIST: f32 = 100.0;
-const SURF_DIST: f32 = 0.001;
-const MAX_STEPS: i32 = 100;
-const PI: f32 = 3.14159265359;
 
 // Matrices de rotation
 fn rotateX(angle: f32) -> mat3x3<f32> {
@@ -141,39 +208,7 @@ fn eval_primitive(p: vec3<f32>, prim: Primitive, is_arm: bool) -> f32 {
     return 100000.0;
 }
 
-// Distance de la scène complète
-fn get_dist(p: vec3<f32>) -> f32 {
-    var min_dist = 100000.0;
-    
-    // Tête
-    min_dist = min(min_dist, eval_primitive(p, stickman.head, false));
-    
-    // Tronc
-    min_dist = min(min_dist, eval_primitive(p, stickman.torso, false));
-    
-    // Bras gauche (horizontal)
-    min_dist = min(min_dist, eval_primitive(p, stickman.left_upper_arm, true));
-    min_dist = min(min_dist, eval_primitive(p, stickman.left_forearm, true));
-    
-    // Bras droit (horizontal)
-    min_dist = min(min_dist, eval_primitive(p, stickman.right_upper_arm, true));
-    min_dist = min(min_dist, eval_primitive(p, stickman.right_forearm, true));
-    
-    // Jambe gauche (vertical)
-    min_dist = min(min_dist, eval_primitive(p, stickman.left_thigh, false));
-    min_dist = min(min_dist, eval_primitive(p, stickman.left_shin, false));
-    
-    // Jambe droite (vertical)
-    min_dist = min(min_dist, eval_primitive(p, stickman.right_thigh, false));
-    min_dist = min(min_dist, eval_primitive(p, stickman.right_shin, false));
-    
-    // Sol
-    let plane_dist = p.y + 2.0;
-    
-    return min(min_dist, plane_dist);
-}
-
-// Récupérer la couleur de la partie touchée
+// Helper function to get body part color
 fn get_body_part_color(hit_pos: vec3<f32>) -> vec3<f32> {
     var min_dist = 100000.0;
     var hit_color = vec3<f32>(0.5);
@@ -192,7 +227,6 @@ fn get_body_part_color(hit_pos: vec3<f32>) -> vec3<f32> {
     );
     
     for (var i = 0; i < 10; i++) {
-        // Bras sont à l'index 2,3,4,5 (horizontal)
         let is_arm = (i >= 2 && i <= 5);
         let dist = eval_primitive(hit_pos, parts[i], is_arm);
         if abs(dist) < abs(min_dist) {
@@ -204,83 +238,86 @@ fn get_body_part_color(hit_pos: vec3<f32>) -> vec3<f32> {
     return hit_color;
 }
 
-// Ray marching
-fn ray_march(ro: vec3<f32>, rd: vec3<f32>) -> f32 {
+fn get_material_color(mat_id: f32, p: vec3<f32>) -> vec3<f32> {
+    if mat_id == MAT_GROUND {
+        let checker = floor(p.x) + floor(p.z);
+        let col1 = vec3<f32>(0.9, 0.9, 0.9);
+        let col2 = vec3<f32>(0.2, 0.2, 0.2);
+        return select(col2, col1, i32(checker) % 2 == 0);
+    } else if mat_id == MAT_STICKMAN {
+        return get_body_part_color(p);
+    }
+    return vec3<f32>(0.5, 0.5, 0.5);
+}
+
+// Scene description - returns (distance, material_id)
+fn get_dist(p: vec3<f32>) -> vec2<f32> {
+    var res = vec2<f32>(100000.0, -1.0);
+    
+    // Calculer la distance minimale du stickman
+    var stickman_dist = 100000.0;
+    
+    // Tête
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.head, false));
+    
+    // Tronc
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.torso, false));
+    
+    // Bras gauche (horizontal)
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.left_upper_arm, true));
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.left_forearm, true));
+    
+    // Bras droit (horizontal)
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.right_upper_arm, true));
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.right_forearm, true));
+    
+    // Jambe gauche (vertical)
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.left_thigh, false));
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.left_shin, false));
+    
+    // Jambe droite (vertical)
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.right_thigh, false));
+    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.right_shin, false));
+    
+    // Sol
+    let plane_dist = p.y + 2.0;
+    
+    // Comparer et assigner le material_id
+    if stickman_dist < plane_dist {
+        res = vec2<f32>(stickman_dist, MAT_STICKMAN);
+    } else {
+        res = vec2<f32>(plane_dist, MAT_GROUND);
+    }
+    
+    return res;
+}
+
+// Ray marching function - returns (distance, material_id)
+fn ray_march(ro: vec3<f32>, rd: vec3<f32>) -> vec2<f32> {
     var d = 0.0;
+    var mat_id = -1.0;
     
     for (var i = 0; i < MAX_STEPS; i++) {
         let p = ro + rd * d;
-        let dist = get_dist(p);
-        d += dist;
+        let dist_mat = get_dist(p);
+        d += dist_mat.x;
+        mat_id = dist_mat.y;
         
-        if dist < SURF_DIST || d > MAX_DIST {
+        if dist_mat.x < SURF_DIST || d > MAX_DIST {
             break;
         }
     }
     
-    return d;
+    return vec2<f32>(d, mat_id);
 }
 
-// Calcul de la normale
+// Calculate normal using gradient
 fn get_normal(p: vec3<f32>) -> vec3<f32> {
     let e = vec2<f32>(0.001, 0.0);
     let n = vec3<f32>(
-        get_dist(p + e.xyy) - get_dist(p - e.xyy),
-        get_dist(p + e.yxy) - get_dist(p - e.yxy),
-        get_dist(p + e.yyx) - get_dist(p - e.yyx)
+        get_dist(p + e.xyy).x - get_dist(p - e.xyy).x,
+        get_dist(p + e.yxy).x - get_dist(p - e.yxy).x,
+        get_dist(p + e.yyx).x - get_dist(p - e.yyx).x
     );
     return normalize(n);
-}
-
-@fragment
-fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
-    let uv = (fragCoord.xy - uniforms.resolution * 0.5) / min(uniforms.resolution.x, uniforms.resolution.y);
-    
-    // Caméra qui tourne
-    let pitch = clamp((1.0 - uniforms.mouse.y / uniforms.resolution.y), 0.05, 1.5);
-    let yaw = uniforms.time * 0.3;
-    
-    let cam_dist = 8.0;
-    let cam_target = vec3<f32>(0.0, 0.0, 0.0);
-    let cam_pos = vec3<f32>(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * cam_dist;
-    
-    let cam_forward = normalize(cam_target - cam_pos);
-    let cam_right = normalize(cross(cam_forward, vec3<f32>(0.0, 1.0, 0.0)));
-    let cam_up = cross(cam_right, cam_forward);
-    
-    let focal_length = 1.5;
-    let rd = normalize(cam_right * uv.x - cam_up * uv.y + cam_forward * focal_length);
-    
-    // Ray march
-    let d = ray_march(cam_pos, rd);
-    
-    if d < MAX_DIST {
-        let hit_pos = cam_pos + rd * d;
-        let normal = get_normal(hit_pos);
-        
-        var color: vec3<f32>;
-        
-        // Vérifier si on a touché le stickman ou le sol
-        if hit_pos.y > -1.99 {
-            // C'est le stickman
-            color = get_body_part_color(hit_pos);
-        } else {
-            // C'est le sol - damier
-            let checker = (floor(hit_pos.x) + floor(hit_pos.z));
-            color = select(vec3<f32>(0.2), vec3<f32>(0.7), i32(checker) % 2 == 0);
-        }
-        
-        // Éclairage
-        let light_dir = normalize(vec3<f32>(1.0, 1.5, -1.0));
-        let diffuse = max(dot(normal, light_dir), 0.0);
-        let ambient = 0.4;
-        
-        color = color * (ambient + diffuse * 0.6);
-        
-        return vec4<f32>(pow(color, vec3<f32>(1.0 / 2.2)), 1.0);
-    }
-    
-    // Ciel
-    let sky = mix(vec3<f32>(0.5, 0.7, 0.9), vec3<f32>(0.3, 0.5, 0.8), uv.y * 0.5 + 0.5);
-    return vec4<f32>(sky, 1.0);
 }
