@@ -172,6 +172,12 @@ fn sd_capsule(p: vec3<f32>, a: vec3<f32>, b: vec3<f32>, radius: f32) -> f32 {
     return length(pa - ba * h) - radius;
 }
 
+// Smooth union operation for blending primitives
+fn op_smooth_union(d1: f32, d2: f32, k: f32) -> f32 {
+    let h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
+    return mix(d2, d1, h) - k * h * (1.0 - h);
+}
+
 // Évaluer une primitive avec rotation
 fn eval_primitive(p: vec3<f32>, prim: Primitive, is_arm: bool) -> f32 {
     let prim_type = i32(prim.pos.w);
@@ -254,30 +260,33 @@ fn get_material_color(mat_id: f32, p: vec3<f32>) -> vec3<f32> {
 fn get_dist(p: vec3<f32>) -> vec2<f32> {
     var res = vec2<f32>(100000.0, -1.0);
     
-    // Calculer la distance minimale du stickman
+    // Smooth blend amount - adjust for desired blend
+    let smooth_blend = 0.15;
+    
+    // Calculer la distance avec smooth blending
     var stickman_dist = 100000.0;
     
     // Tête
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.head, false));
+    stickman_dist = eval_primitive(p, stickman.head, false);
     
-    // Tronc
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.torso, false));
+    // Tronc - blend avec la tête
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.torso, false), smooth_blend);
     
-    // Bras gauche (horizontal)
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.left_upper_arm, true));
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.left_forearm, true));
+    // Bras gauche (horizontal) - blend avec le tronc
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.left_upper_arm, true), smooth_blend);
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.left_forearm, true), smooth_blend);
     
-    // Bras droit (horizontal)
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.right_upper_arm, true));
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.right_forearm, true));
+    // Bras droit (horizontal) - blend avec le tronc
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.right_upper_arm, true), smooth_blend);
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.right_forearm, true), smooth_blend);
     
-    // Jambe gauche (vertical)
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.left_thigh, false));
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.left_shin, false));
+    // Jambe gauche (vertical) - blend avec le tronc
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.left_thigh, false), smooth_blend);
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.left_shin, false), smooth_blend);
     
-    // Jambe droite (vertical)
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.right_thigh, false));
-    stickman_dist = min(stickman_dist, eval_primitive(p, stickman.right_shin, false));
+    // Jambe droite (vertical) - blend avec le tronc
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.right_thigh, false), smooth_blend);
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.right_shin, false), smooth_blend);
     
     // Sol
     let plane_dist = p.y + 2.0;

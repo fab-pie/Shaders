@@ -77,18 +77,18 @@ const sceneData = {
 // Stickman data (10 body parts) - tous les cylindres sont verticaux (axe Y) par défaut
 // Les rotations sont appliquées pour les orienter
 const stickmanData = {
-  head: { type: 0, x: 0.0, y: 0.9, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.15, param2: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+  head: { type: 0, x: 0.0, y: 0.85, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.15, param2: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
   torso: { type: 3, x: 0.0, y: 0.2, z: 0.0, r: 0.2, g: 0.4, b: 0.8, param1: 0.12, param2: 0.45, rotX: 0, rotY: 0, rotZ: 0 },
   // Bras: position à l'épaule, rotation Z = 90° pour horizontal (T-pose)
-  left_upper_arm: { type: 3, x: -0.2, y: 0.5, z: 0.0, r: 0.9, g: 0.6, b: 0.4, param1: 0.06, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
-  left_forearm: { type: 3, x: -0.6, y: 0.5, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.05, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
-  right_upper_arm: { type: 3, x: 0.2, y: 0.5, z: 0.0, r: 0.9, g: 0.6, b: 0.4, param1: 0.06, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
-  right_forearm: { type: 3, x: 0.6, y: 0.5, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.05, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
+  left_upper_arm: { type: 3, x: -0.22, y: 0.5, z: 0.0, r: 0.9, g: 0.6, b: 0.4, param1: 0.06, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
+  left_forearm: { type: 3, x: -0.62, y: 0.5, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.05, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
+  right_upper_arm: { type: 3, x: 0.22, y: 0.5, z: 0.0, r: 0.9, g: 0.6, b: 0.4, param1: 0.06, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
+  right_forearm: { type: 3, x: 0.62, y: 0.5, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.05, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
   // Jambes: verticales par défaut
-  left_thigh: { type: 3, x: -0.12, y: -0.35, z: 0.0, r: 0.2, g: 0.3, b: 0.7, param1: 0.08, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
-  left_shin: { type: 3, x: -0.12, y: -0.95, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.06, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
-  right_thigh: { type: 3, x: 0.12, y: -0.35, z: 0.0, r: 0.2, g: 0.3, b: 0.7, param1: 0.08, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
-  right_shin: { type: 3, x: 0.12, y: -0.95, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.06, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
+  left_thigh: { type: 3, x: -0.15, y: -0.35, z: 0.0, r: 0.2, g: 0.3, b: 0.7, param1: 0.08, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
+  left_shin: { type: 3, x: -0.15, y: -0.95, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.06, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
+  right_thigh: { type: 3, x: 0.15, y: -0.35, z: 0.0, r: 0.2, g: 0.3, b: 0.7, param1: 0.08, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
+  right_shin: { type: 3, x: 0.15, y: -0.95, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.06, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
   activePart: 0
 };
 
@@ -97,46 +97,61 @@ const poses = {
   tpose: {
     name: 'T-Pose',
     data: {
-      head: { x: 0.0, y: 0.9, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      left_upper_arm: { x: -0.2, y: 0.5, z: 0.0, rotX: 0, rotY: 0, rotZ: 90 },
-      left_forearm: { x: -0.6, y: 0.5, z: 0.0, rotX: 0, rotY: 0, rotZ: 90 },
-      right_upper_arm: { x: 0.2, y: 0.5, z: 0.0, rotX: 0, rotY: 0, rotZ: 90 },
-      right_forearm: { x: 0.6, y: 0.5, z: 0.0, rotX: 0, rotY: 0, rotZ: 90 },
-      left_thigh: { x: -0.12, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      left_shin: { x: -0.12, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      right_thigh: { x: 0.12, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      right_shin: { x: 0.12, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 }
+      left_upper_arm: { x: -0.22, y: 0.5, z: 0.0, rotX: 0, rotY: 0, rotZ: 90 },
+      left_forearm: { x: -0.62, y: 0.5, z: 0.0, rotX: 0, rotY: 0, rotZ: 90 },
+      right_upper_arm: { x: 0.22, y: 0.5, z: 0.0, rotX: 0, rotY: 0, rotZ: 90 },
+      right_forearm: { x: 0.62, y: 0.5, z: 0.0, rotX: 0, rotY: 0, rotZ: 90 },
+      left_thigh: { x: -0.15, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      left_shin: { x: -0.15, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_thigh: { x: 0.15, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_shin: { x: 0.15, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 }
     }
   },
   relaxed: {
     name: 'Bras Baissés',
     data: {
-      head: { x: 0.0, y: 0.9, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      left_upper_arm: { x: -0.2, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      left_forearm: { x: -0.2, y: -0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      right_upper_arm: { x: 0.2, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      right_forearm: { x: 0.2, y: -0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      left_thigh: { x: -0.12, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      left_shin: { x: -0.12, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      right_thigh: { x: 0.12, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      right_shin: { x: 0.12, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 }
+      left_upper_arm: { x: -0.22, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      left_forearm: { x: -0.22, y: -0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_upper_arm: { x: 0.22, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_forearm: { x: 0.22, y: -0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      left_thigh: { x: -0.15, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      left_shin: { x: -0.15, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_thigh: { x: 0.15, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_shin: { x: 0.15, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 }
     }
   },
   apose: {
     name: 'A-Pose (45°)',
     data: {
-      head: { x: 0.0, y: 0.9, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      left_upper_arm: { x: -0.2, y: 0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 45 },
-      left_forearm: { x: -0.48, y: 0.07, z: 0.0, rotX: 0, rotY: 0, rotZ: 45 },
-      right_upper_arm: { x: 0.2, y: 0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: -45 },
-      right_forearm: { x: 0.48, y: 0.07, z: 0.0, rotX: 0, rotY: 0, rotZ: -45 },
-      left_thigh: { x: -0.12, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      left_shin: { x: -0.12, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      right_thigh: { x: 0.12, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
-      right_shin: { x: 0.12, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 }
+      left_upper_arm: { x: -0.22, y: 0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 45 },
+      left_forearm: { x: -0.50, y: 0.07, z: 0.0, rotX: 0, rotY: 0, rotZ: 45 },
+      right_upper_arm: { x: 0.22, y: 0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: -45 },
+      right_forearm: { x: 0.50, y: 0.07, z: 0.0, rotX: 0, rotY: 0, rotZ: -45 },
+      left_thigh: { x: -0.15, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      left_shin: { x: -0.15, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_thigh: { x: 0.15, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_shin: { x: 0.15, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 }
+    }
+  },
+  armsup: {
+    name: 'Bras en Haut',
+    data: {
+      head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      left_upper_arm: { x: -0.22, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      left_forearm: { x: -0.22, y: 1.25, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_upper_arm: { x: 0.22, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_forearm: { x: 0.22, y: 1.25, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      left_thigh: { x: -0.15, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      left_shin: { x: -0.15, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_thigh: { x: 0.15, y: -0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
+      right_shin: { x: 0.15, y: -0.95, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 }
     }
   }
 };
