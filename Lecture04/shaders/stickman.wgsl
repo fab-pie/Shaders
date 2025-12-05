@@ -74,48 +74,48 @@ const MAT_STICKMAN: f32 = 1.0;
 // Material Colors
 const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.7, 0.8, 0.9);
 
-// Struct pour les primitives
+// Primitive struct
 struct Primitive {
     pos: vec4<f32>,      // xyz = position, w = type (0=sphere, 3=cylinder)
-    color: vec4<f32>,    // rgb = couleur, a = padding
+    color: vec4<f32>,    // rgb = color, a = padding
     params: vec4<f32>,   // x = radius, y = height/radius2, zw = padding
-    rotation: vec4<f32>, // xyz = rotation en degrés (pitch, yaw, roll), w = padding
+    rotation: vec4<f32>, // xyz = rotation in degrees (pitch, yaw, roll), w = padding
 }
 
-// Struct Stickman (14 parties)
+// Struct Stickman (14 parts)
 struct Stickman {
-    // Tête
+    // Head
     head: Primitive,
     
-    // Tronc
+    // Torso
     torso: Primitive,
     
-    // Bras gauche
+    // Left arm
     left_upper_arm: Primitive,
     left_forearm: Primitive,
     
-    // Bras droit
+    // Right arm
     right_upper_arm: Primitive,
     right_forearm: Primitive,
     
-    // Jambe gauche
+    // Left leg
     left_thigh: Primitive,
     left_shin: Primitive,
     
-    // Jambe droite
+    // Right leg
     right_thigh: Primitive,
     right_shin: Primitive,
     
-    // Padding pour alignement
+    // Padding for alignment
     _pad1: vec4<f32>,
     _pad2: vec4<f32>,
 }
 
-// Bind le Stickman à @binding(1)
+// Bind Stickman to @binding(1)
 @group(0) @binding(1)
 var<uniform> stickman: Stickman;
 
-// Matrices de rotation
+// Rotation matrices
 fn rotateX(angle: f32) -> mat3x3<f32> {
     let c = cos(angle);
     let s = sin(angle);
@@ -151,14 +151,14 @@ fn sd_sphere(p: vec3<f32>, center: vec3<f32>, radius: f32) -> f32 {
     return length(p - center) - radius;
 }
 
-// Cylindre orienté verticalement
+// Vertical cylinder (Y axis)
 fn sd_cylinder_y(p: vec3<f32>, center: vec3<f32>, radius: f32, height: f32) -> f32 {
     let p_local = p - center;
     let d = vec2<f32>(length(p_local.xz) - radius, abs(p_local.y) - height);
     return min(max(d.x, d.y), 0.0) + length(max(d, vec2<f32>(0.0)));
 }
 
-// Cylindre orienté horizontalement (axe X)
+// Horizontal cylinder (X axis)
 fn sd_cylinder_x(p: vec3<f32>, center: vec3<f32>, radius: f32, length: f32) -> f32 {
     let p_local = p - center;
     let d = vec2<f32>(length(p_local.yz) - radius, abs(p_local.x) - length);
@@ -178,20 +178,20 @@ fn op_smooth_union(d1: f32, d2: f32, k: f32) -> f32 {
     return mix(d2, d1, h) - k * h * (1.0 - h);
 }
 
-// Évaluer une primitive avec rotation
+// Evaluate primitive with rotation
 fn eval_primitive(p: vec3<f32>, prim: Primitive, is_arm: bool) -> f32 {
     let prim_type = i32(prim.pos.w);
     let prim_pos = prim.pos.xyz;
     
-    // Convertir les rotations en radians
+    // Convert rotations to radians
     let rotX = prim.rotation.x * PI / 180.0;
     let rotY = prim.rotation.y * PI / 180.0;
     let rotZ = prim.rotation.z * PI / 180.0;
     
-    // Transformer le point dans l'espace local de la primitive
+    // Transform point to primitive's local space
     var p_local = p - prim_pos;
     
-    // Appliquer les rotations INVERSES (ordre: Z, Y, X)
+    // Apply INVERSE rotations (order: Z, Y, X)
     if abs(rotZ) > 0.01 {
         p_local = rotateZ(-rotZ) * p_local;
     }
@@ -203,10 +203,10 @@ fn eval_primitive(p: vec3<f32>, prim: Primitive, is_arm: bool) -> f32 {
     }
     
     if prim_type == 0 {
-        // Sphere - pas affectée par la rotation
+        // Sphere - not affected by rotation
         return length(p_local) - prim.params.x;
     } else if prim_type == 3 {
-        // Cylinder - toujours vertical (axe Y) après rotation
+        // Cylinder - always vertical (Y axis) after rotation
         let d = vec2<f32>(length(p_local.xz) - prim.params.x, abs(p_local.y) - prim.params.y);
         return min(max(d.x, d.y), 0.0) + length(max(d, vec2<f32>(0.0)));
     }
@@ -263,35 +263,35 @@ fn get_dist(p: vec3<f32>) -> vec2<f32> {
     // Smooth blend amount - adjust for desired blend
     let smooth_blend = 0.15;
     
-    // Calculer la distance avec smooth blending
+    // Calculate distance with smooth blending
     var stickman_dist = 100000.0;
     
-    // Tête
+    // Head
     stickman_dist = eval_primitive(p, stickman.head, false);
     
-    // Tronc - blend avec la tête
+    // Torso - blend with head
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.torso, false), smooth_blend);
     
-    // Bras gauche (horizontal) - blend avec le tronc
+    // Left arm (horizontal) - blend with torso
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.left_upper_arm, true), smooth_blend);
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.left_forearm, true), smooth_blend);
     
-    // Bras droit (horizontal) - blend avec le tronc
+    // Right arm (horizontal) - blend with torso
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.right_upper_arm, true), smooth_blend);
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.right_forearm, true), smooth_blend);
     
-    // Jambe gauche (vertical) - blend avec le tronc
+    // Left leg (vertical) - blend with torso
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.left_thigh, false), smooth_blend);
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.left_shin, false), smooth_blend);
     
-    // Jambe droite (vertical) - blend avec le tronc
+    // Right leg (vertical) - blend with torso
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.right_thigh, false), smooth_blend);
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.right_shin, false), smooth_blend);
     
-    // Sol
+    // Ground
     let plane_dist = p.y + 2.0;
     
-    // Comparer et assigner le material_id
+    // Compare and assign material_id
     if stickman_dist < plane_dist {
         res = vec2<f32>(stickman_dist, MAT_STICKMAN);
     } else {

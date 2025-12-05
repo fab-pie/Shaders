@@ -31,14 +31,9 @@
       "description": "Advanced ray marching with reflection, refraction, Fresnel effects, and multiple material types"
     },
     {
-      "file": "scene_minimal.wgsl",
-      "name": "Scene Minimal (Projet)",
-      "description": "Implémentation minimale avec uniform buffer Scene - 1 sphère contrôlable"
-    },
-    {
       "file": "stickman.wgsl",
-      "name": "Stickman Articulé",
-      "description": "Bonhomme bâton avec 10 parties du corps contrôlables (tête, tronc, bras, jambes)"
+      "name": "Shaders human body",
+      "description": "Shader that use ray marching to draw a human body"
     }
   ]
 }

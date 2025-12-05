@@ -74,17 +74,17 @@ const sceneData = {
   activeIndex: 0
 };
 
-// Stickman data (10 body parts) - tous les cylindres sont verticaux (axe Y) par défaut
-// Les rotations sont appliquées pour les orienter
+// Stickman data (10 body parts) - all cylinders are vertical (Y axis) by default
+// Rotations are applied to orient them
 const stickmanData = {
   head: { type: 0, x: 0.0, y: 0.85, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.15, param2: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
   torso: { type: 3, x: 0.0, y: 0.2, z: 0.0, r: 0.2, g: 0.4, b: 0.8, param1: 0.12, param2: 0.45, rotX: 0, rotY: 0, rotZ: 0 },
-  // Bras: position à l'épaule, rotation Z = 90° pour horizontal (T-pose)
+  // Arms: position at shoulder, rotation Z = 90° for horizontal (T-pose)
   left_upper_arm: { type: 3, x: -0.22, y: 0.5, z: 0.0, r: 0.9, g: 0.6, b: 0.4, param1: 0.06, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
   left_forearm: { type: 3, x: -0.62, y: 0.5, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.05, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
   right_upper_arm: { type: 3, x: 0.22, y: 0.5, z: 0.0, r: 0.9, g: 0.6, b: 0.4, param1: 0.06, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
   right_forearm: { type: 3, x: 0.62, y: 0.5, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.05, param2: 0.2, rotX: 0, rotY: 0, rotZ: 90 },
-  // Jambes: verticales par défaut
+  // Legs: vertical by default
   left_thigh: { type: 3, x: -0.15, y: -0.35, z: 0.0, r: 0.2, g: 0.3, b: 0.7, param1: 0.08, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
   left_shin: { type: 3, x: -0.15, y: -0.95, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.06, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
   right_thigh: { type: 3, x: 0.15, y: -0.35, z: 0.0, r: 0.2, g: 0.3, b: 0.7, param1: 0.08, param2: 0.3, rotX: 0, rotY: 0, rotZ: 0 },
@@ -92,7 +92,7 @@ const stickmanData = {
   activePart: 0
 };
 
-// Poses prédéfinies - utilisant rotations Z pour bras, X pour avant/arrière
+// Preset poses - using Z rotations for arms, X for forward/backward
 const poses = {
   tpose: {
     name: 'T-Pose',
@@ -110,7 +110,7 @@ const poses = {
     }
   },
   relaxed: {
-    name: 'Bras Baissés',
+    name: 'Arms Down',
     data: {
       head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
@@ -140,7 +140,7 @@ const poses = {
     }
   },
   armsup: {
-    name: 'Bras en Haut',
+    name: 'Arms Up',
     data: {
       head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
