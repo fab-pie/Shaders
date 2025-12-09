@@ -1,8 +1,10 @@
 # WebGPU Interactive Ray Marching Scene Editor
 
+![WebGPU Scene Editor](image.png)
+
 ## Live Demo
 
-**[https://fab-pie.github.io/Shaders/Lecture04/](https://fab-pie.github.io/Shaders/Lecture04/)**
+**[https://fab-pie.github.io/Shaders/](https://fab-pie.github.io/Shaders/)**
 
 ## Overview
 
