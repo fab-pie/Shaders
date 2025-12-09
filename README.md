@@ -13,11 +13,9 @@ An interactive 3D scene editor built with WebGPU and ray marching techniques. Ed
 ## Features
 
 - Real-time shader editing with syntax highlighting
-- Interactive scene controls for manipulating 3D objects (position, size, color)
+- Interactive scene controls for manipulating 3D objects (position, rotation, size, color)
 - GPU uniform buffer system for dynamic scene updates
 - Orbital camera with mouse control
-- Ray marching renderer with SDF-based primitives
-- Multiple shader examples (Perlin noise, FBM, glass reflections)
 - Articulated stickman character with pose presets
 
 ## Tech Stack
@@ -65,8 +63,8 @@ Lecture04/
 ├── js/
 │   └── app.js             # Application logic and WebGPU setup
 └── shaders/
-    ├── scene_minimal.wgsl  # Interactive scene with 4 primitives
-    ├── stickman.wgsl       # Articulated character with pose presets
+    ├── stickman.wgsl       # Articulated character with pose presets and halo
+    ├── Scene_test.wgsl     # Test scene
     ├── raymarch_basic.wgsl # Basic ray marching example
     ├── raymarch_glass.wgsl # Glass material with reflections
     ├── perlin_noise.wgsl   # Perlin noise visualization
@@ -75,9 +73,3 @@ Lecture04/
     ├── mouse.wgsl          # Mouse interaction demo
     └── manifest.json       # Shader catalog
 ```
-
-## Resources
-
-- [WebGPU Fundamentals](https://webgpufundamentals.org/)
-- [Inigo Quilez - SDF Functions](https://iquilezles.org/articles/)
-- [WGSL Specification](https://www.w3.org/TR/WGSL/)
