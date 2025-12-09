@@ -4,7 +4,6 @@ const shaders = {};
 let fallbackShader = `// Fragment shader - runs once per pixel
 @fragment
 fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
-    // Simple gradient as fallback
     let uv = fragCoord.xy / uniforms.resolution;
     return vec4<f32>(uv, 0.5, 1.0);
 }`;
@@ -74,9 +73,10 @@ const sceneData = {
   activeIndex: 0
 };
 
-// Stickman data (10 body parts) - all cylinders are vertical (Y axis) by default
+// Stickman data (11 body parts) - all cylinders are vertical (Y axis) by default
 // Rotations are applied to orient them
 const stickmanData = {
+  halo: { type: 2, x: 0.0, y: 1.15, z: 0.0, r: 1.0, g: 1.0, b: 0.0, param1: 0.2, param2: 0.03, rotX: 90, rotY: 0, rotZ: 0 },
   head: { type: 0, x: 0.0, y: 0.85, z: 0.0, r: 0.95, g: 0.85, b: 0.7, param1: 0.15, param2: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
   torso: { type: 3, x: 0.0, y: 0.2, z: 0.0, r: 0.2, g: 0.4, b: 0.8, param1: 0.12, param2: 0.45, rotX: 0, rotY: 0, rotZ: 0 },
   // Arms: position at shoulder, rotation Z = 90° for horizontal (T-pose)
@@ -97,6 +97,7 @@ const poses = {
   tpose: {
     name: 'T-Pose',
     data: {
+      halo: { x: 0.0, y: 1.15, z: 0.0, rotX: 90, rotY: 0, rotZ: 0 },
       head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       left_upper_arm: { x: -0.22, y: 0.5, z: 0.0, rotX: 0, rotY: 0, rotZ: 90 },
@@ -112,6 +113,7 @@ const poses = {
   relaxed: {
     name: 'Arms Down',
     data: {
+      halo: { x: 0.0, y: 1.15, z: 0.0, rotX: 90, rotY: 0, rotZ: 0 },
       head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       left_upper_arm: { x: -0.22, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
@@ -127,6 +129,7 @@ const poses = {
   apose: {
     name: 'A-Pose (45°)',
     data: {
+      halo: { x: 0.0, y: 1.15, z: 0.0, rotX: 90, rotY: 0, rotZ: 0 },
       head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       left_upper_arm: { x: -0.22, y: 0.35, z: 0.0, rotX: 0, rotY: 0, rotZ: 45 },
@@ -142,6 +145,7 @@ const poses = {
   armsup: {
     name: 'Arms Up',
     data: {
+      halo: { x: 0.0, y: 1.15, z: 0.0, rotX: 90, rotY: 0, rotZ: 0 },
       head: { x: 0.0, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       torso: { x: 0.0, y: 0.2, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
       left_upper_arm: { x: -0.22, y: 0.85, z: 0.0, rotX: 0, rotY: 0, rotZ: 0 },
@@ -244,7 +248,7 @@ async function initWebGPU() {
   });
   
   sceneBuffer = device.createBuffer({
-    size: 768, // Augmenté pour supporter les rotations (4 vec4 par primitive)
+    size: 768,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
   
@@ -335,12 +339,12 @@ function render() {
   
   if (activeShader === 'stickman.wgsl') {
     // Chaque primitive: 4 vec4 = 16 floats = 64 bytes
-    // 10 primitives + 2 padding vec4 = 12 * 16 floats = 192 floats = 768 bytes
+    // 11 primitives + 1 padding vec4 = 12 * 16 floats = 192 floats = 768 bytes
     const stickmanArrayBuffer = new ArrayBuffer(768);
     const f32 = new Float32Array(stickmanArrayBuffer);
     let offset = 0;
     
-    const parts = ['head', 'torso', 'left_upper_arm', 'left_forearm', 'right_upper_arm', 
+    const parts = ['halo', 'head', 'torso', 'left_upper_arm', 'left_forearm', 'right_upper_arm', 
                    'right_forearm', 'left_thigh', 'left_shin', 'right_thigh', 'right_shin'];
     
     for (const partName of parts) {
@@ -608,6 +612,23 @@ function updateUIForStickman() {
   objZSlider.value = part.z;
   $("obj-z-value").textContent = part.z.toFixed(1);
   
+  // Update rotation sliders
+  const objRotXSlider = $("obj-rotX");
+  const objRotYSlider = $("obj-rotY");
+  const objRotZSlider = $("obj-rotZ");
+  
+  if (objRotXSlider) {
+    objRotXSlider.value = part.rotX || 0;
+    $("obj-rotX-value").textContent = (part.rotX || 0) + "°";
+    objRotYSlider.value = part.rotY || 0;
+    $("obj-rotY-value").textContent = (part.rotY || 0) + "°";
+    objRotZSlider.value = part.rotZ || 0;
+    $("obj-rotZ-value").textContent = (part.rotZ || 0) + "°";
+  }
+  
+  // Show rotation controls for stickman
+  $("rotation-controls").style.display = "block";
+  
   objParam1Slider.value = part.param1;
   $("obj-param1-value").textContent = part.param1.toFixed(2);
   objParam2Slider.value = part.param2;
@@ -622,6 +643,10 @@ function updateUIForStickman() {
   if (partName === 'head') {
     $("param1-label").textContent = "Radius";
     $("param2-container").style.display = "none";
+  } else if (partName === 'halo') {
+    $("param1-label").textContent = "Major Radius";
+    $("param2-label").textContent = "Minor Radius";
+    $("param2-container").style.display = "block";
   } else {
     $("param1-label").textContent = "Radius";
     $("param2-label").textContent = "Height";
@@ -666,6 +691,9 @@ function updateUIForShape() {
     $("param2-label").textContent = "Height";
     $("param2-container").style.display = "block";
   }
+  
+  // Hide rotation controls for non-stickman shaders
+  $("rotation-controls").style.display = "none";
 }
 
 // Event listeners
@@ -850,6 +878,41 @@ objColorPicker.oninput = (e) => {
     sceneData.primitives[idx].b = b;
   }
 };
+
+// Rotation sliders (for stickman)
+const objRotXSlider = $("obj-rotX");
+const objRotYSlider = $("obj-rotY");
+const objRotZSlider = $("obj-rotZ");
+
+if (objRotXSlider) {
+  objRotXSlider.oninput = (e) => {
+    if (shaderSelector.value === 'stickman.wgsl') {
+      const partName = stickmanSelector.value;
+      stickmanData[partName].rotX = parseFloat(e.target.value);
+      $("obj-rotX-value").textContent = stickmanData[partName].rotX + "°";
+    }
+  };
+}
+
+if (objRotYSlider) {
+  objRotYSlider.oninput = (e) => {
+    if (shaderSelector.value === 'stickman.wgsl') {
+      const partName = stickmanSelector.value;
+      stickmanData[partName].rotY = parseFloat(e.target.value);
+      $("obj-rotY-value").textContent = stickmanData[partName].rotY + "°";
+    }
+  };
+}
+
+if (objRotZSlider) {
+  objRotZSlider.oninput = (e) => {
+    if (shaderSelector.value === 'stickman.wgsl') {
+      const partName = stickmanSelector.value;
+      stickmanData[partName].rotZ = parseFloat(e.target.value);
+      $("obj-rotZ-value").textContent = stickmanData[partName].rotZ + "°";
+    }
+  };
+}
 
 // Main initialization
 const main = async () => {

@@ -29,8 +29,7 @@ This section focuses on defining a custom data structure for your scene in both 
 | :--- | :--- |
 | **0** | No custom uniform buffer is created. Shader still uses hardcoded values. |
 | **10 (Minimum Goal)** | A new uniform buffer is created. The shader can successfully render **one** primitive (e.g., a single sphere) whose properties (position, radius, color) are fully controlled by the uniform. |
-| **15 (Good Goal)** | A clean `Scene` struct is defined in WGSL and JS that holds **multiple, mixed primitives** (e.g., `struct Scene { sphere1: Sphere, box1: Box }`). The shader correctly renders all objects from this struct. |
-| **20 (Excellent Goal)** | A robust, extensible system is built using **arrays of primitives** (e.g., `struct Scene { spheres: array<Sphere, 5>, num_spheres: u32 }`). The shader loops over these arrays, demonstrating a fully dynamic scene structure. |
+| **15 (Good Goal)** | A clean `Scene` struct is defined in WGSL and JS that holds **multiple, mixed primitives** (e.g., `struct Scene { sphere1: Sphere, box1: Box }`). The shader correctly renders all objects from this struct. | over these arrays, demonstrating a fully dynamic scene structure. |
 
 ## 2. Interactive Scene Editor UI
 
@@ -71,6 +70,7 @@ This section covers the professional presentation and deployment of your project
 
 * The final application must be hosted on your **GitHub Pages** URL and be fully functional and accessible to everyone. (Note: This may require a `.nojekyll` file if your assets are in folders starting with `_`).
 
+| **20 (Excellent Goal)** | A robust, extensible system is built using **arrays of primitives** (e.g., `struct Scene { spheres: array<Sphere, 5>, num_spheres: u32 }`). The shader loops
 ### 3.2. Professional Repository `README.md`
 
 Your `README.md` is the front page of your project. It should be professional, clear, and serve as a demonstration of your work.

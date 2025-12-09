@@ -82,8 +82,11 @@ struct Primitive {
     rotation: vec4<f32>, // xyz = rotation in degrees (pitch, yaw, roll), w = padding
 }
 
-// Struct Stickman (14 parts)
+// Struct Stickman (11 parts)
 struct Stickman {
+    // Halo
+    halo: Primitive,
+    
     // Head
     head: Primitive,
     
@@ -108,7 +111,6 @@ struct Stickman {
     
     // Padding for alignment
     _pad1: vec4<f32>,
-    _pad2: vec4<f32>,
 }
 
 // Bind Stickman to @binding(1)
@@ -172,6 +174,12 @@ fn sd_capsule(p: vec3<f32>, a: vec3<f32>, b: vec3<f32>, radius: f32) -> f32 {
     return length(pa - ba * h) - radius;
 }
 
+fn sd_torus(p: vec3<f32>, center: vec3<f32>, major_radius: f32, minor_radius: f32) -> f32 {
+    let p_local = p - center;
+    let q = vec2<f32>(length(p_local.xz) - major_radius, p_local.y);
+    return length(q) - minor_radius;
+}
+
 // Smooth union operation for blending primitives
 fn op_smooth_union(d1: f32, d2: f32, k: f32) -> f32 {
     let h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
@@ -205,6 +213,10 @@ fn eval_primitive(p: vec3<f32>, prim: Primitive, is_arm: bool) -> f32 {
     if prim_type == 0 {
         // Sphere - not affected by rotation
         return length(p_local) - prim.params.x;
+    } else if prim_type == 2 {
+        // Torus - horizontal (XY plane after rotation)
+        let q = vec2<f32>(length(p_local.xy) - prim.params.x, p_local.z);
+        return length(q) - prim.params.y;
     } else if prim_type == 3 {
         // Cylinder - always vertical (Y axis) after rotation
         let d = vec2<f32>(length(p_local.xz) - prim.params.x, abs(p_local.y) - prim.params.y);
@@ -219,7 +231,8 @@ fn get_body_part_color(hit_pos: vec3<f32>) -> vec3<f32> {
     var min_dist = 100000.0;
     var hit_color = vec3<f32>(0.5);
     
-    let parts = array<Primitive, 10>(
+    let parts = array<Primitive, 11>(
+        stickman.halo,
         stickman.head,
         stickman.torso,
         stickman.left_upper_arm,
@@ -232,8 +245,8 @@ fn get_body_part_color(hit_pos: vec3<f32>) -> vec3<f32> {
         stickman.right_shin
     );
     
-    for (var i = 0; i < 10; i++) {
-        let is_arm = (i >= 2 && i <= 5);
+    for (var i = 0; i < 11; i++) {
+        let is_arm = (i >= 3 && i <= 6);
         let dist = eval_primitive(hit_pos, parts[i], is_arm);
         if abs(dist) < abs(min_dist) {
             min_dist = dist;
@@ -266,8 +279,11 @@ fn get_dist(p: vec3<f32>) -> vec2<f32> {
     // Calculate distance with smooth blending
     var stickman_dist = 100000.0;
     
+    // Halo (no blend - separate)
+    stickman_dist = eval_primitive(p, stickman.halo, false);
+    
     // Head
-    stickman_dist = eval_primitive(p, stickman.head, false);
+    stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.head, false), smooth_blend);
     
     // Torso - blend with head
     stickman_dist = op_smooth_union(stickman_dist, eval_primitive(p, stickman.torso, false), smooth_blend);

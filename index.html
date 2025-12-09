@@ -200,6 +200,7 @@
                     
                     <label class="block text-xs mb-1" style="color: #a89984;">Body Part</label>
                     <select id="stickman-selector" class="w-full px-2 py-1 rounded text-sm" style="background: #3c3836; color: #ebdbb2; border: 1px solid #504945;">
+                      <option value="halo">Halo</option>
                       <option value="head">Head</option>
                       <option value="torso">Torso</option>
                       <option value="left_upper_arm">Left Upper Arm</option>
@@ -232,18 +233,39 @@
                     <span id="obj-z-value" class="text-xs" style="color: #83a598;">0.0</span>
                   </div>
                   
+                  <!-- Rotation Controls (for stickman) -->
+                  <div id="rotation-controls" style="display: none;">
+                    <div class="mb-3">
+                      <label class="block text-xs mb-1" style="color: #a89984;">Rotation X</label>
+                      <input type="range" id="obj-rotX" min="-180" max="180" step="5" value="0" class="w-full">
+                      <span id="obj-rotX-value" class="text-xs" style="color: #83a598;">0°</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label class="block text-xs mb-1" style="color: #a89984;">Rotation Y</label>
+                      <input type="range" id="obj-rotY" min="-180" max="180" step="5" value="0" class="w-full">
+                      <span id="obj-rotY-value" class="text-xs" style="color: #83a598;">0°</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label class="block text-xs mb-1" style="color: #a89984;">Rotation Z</label>
+                      <input type="range" id="obj-rotZ" min="-180" max="180" step="5" value="0" class="w-full">
+                      <span id="obj-rotZ-value" class="text-xs" style="color: #83a598;">0°</span>
+                    </div>
+                  </div>
+                  
                   <!-- Parameter 1 -->
                   <div class="mb-3">
                     <label class="block text-xs mb-1" style="color: #a89984;" id="param1-label">Radius / Size</label>
-                    <input type="range" id="obj-param1" min="0.1" max="2" step="0.05" value="0.5" class="w-full">
-                    <span id="obj-param1-value" class="text-xs" style="color: #83a598;">0.5</span>
+                    <input type="range" id="obj-param1" min="0.01" max="0.5" step="0.01" value="0.1" class="w-full">
+                    <span id="obj-param1-value" class="text-xs" style="color: #83a598;">0.10</span>
                   </div>
                   
                   <!-- Parameter 2 (for specific shapes) -->
                   <div class="mb-3" id="param2-container">
                     <label class="block text-xs mb-1" style="color: #a89984;" id="param2-label">Parameter 2</label>
-                    <input type="range" id="obj-param2" min="0.1" max="2" step="0.05" value="0.0" class="w-full">
-                    <span id="obj-param2-value" class="text-xs" style="color: #83a598;">0.0</span>
+                    <input type="range" id="obj-param2" min="0.01" max="0.5" step="0.01" value="0.1" class="w-full">
+                    <span id="obj-param2-value" class="text-xs" style="color: #83a598;">0.10</span>
                   </div>
                   
                   <!-- Color Picker -->

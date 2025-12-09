@@ -1,8 +1,5 @@
 # WebGPU Interactive Ray Marching Scene Editor
 
-> [!NOTE]
-> **Screenshot placeholder**: Add a high-quality screenshot or animated GIF of the editor in action here.
-
 ## Live Demo
 
 **[https://fab-pie.github.io/Shaders/Lecture04/](https://fab-pie.github.io/Shaders/Lecture04/)**
