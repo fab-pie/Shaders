@@ -52,24 +52,3 @@ An interactive 3D scene editor built with WebGPU and ray marching techniques. Ed
    ```
 
 4. Select a shader from the dropdown menu and start experimenting.
-
-## Project Structure
-
-```
-Lecture04/
-├── index.html              # Main application structure
-├── css/
-│   └── style.css          # CodeMirror theme styles
-├── js/
-│   └── app.js             # Application logic and WebGPU setup
-└── shaders/
-    ├── stickman.wgsl       # Articulated character with pose presets and halo
-    ├── Scene_test.wgsl     # Test scene
-    ├── raymarch_basic.wgsl # Basic ray marching example
-    ├── raymarch_glass.wgsl # Glass material with reflections
-    ├── perlin_noise.wgsl   # Perlin noise visualization
-    ├── fbm_perlin_noise.wgsl # Fractal Brownian Motion
-    ├── simple_noise.wgsl   # Simple noise example
-    ├── mouse.wgsl          # Mouse interaction demo
-    └── manifest.json       # Shader catalog
-```
